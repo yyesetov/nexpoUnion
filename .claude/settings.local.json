@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//tmp/**)",
+      "Bash(tar xf:*)",
+      "Bash(cp /tmp/design_extract/nexpounionmangal/project/src/i18n.jsx C:/projects/nexpoUnion/src/i18n.jsx)",
+      "Bash(cp /tmp/design_extract/nexpounionmangal/project/src/store.jsx C:/projects/nexpoUnion/src/store.jsx)",
+      "Bash(cp /tmp/design_extract/nexpounionmangal/project/src/calendar.jsx C:/projects/nexpoUnion/src/calendar.jsx)",
+      "Bash(cp /tmp/design_extract/nexpounionmangal/project/src/form.jsx C:/projects/nexpoUnion/src/form.jsx)",
+      "Bash(cp /tmp/design_extract/nexpounionmangal/project/src/modals.jsx C:/projects/nexpoUnion/src/modals.jsx)",
+      "Bash(npm install:*)",
+      "Bash(cd:*)",
+      "Bash(timeout 5 node server/index.js)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s http://localhost:3000/api/bookings)",
+      "Bash(curl -s -X POST http://localhost:3000/api/bookings -H \"Content-Type: application/json\" -d '{\"\"date\"\":\"\"2026-04-28\"\",\"\"name\"\":\"\"Тест\"\",\"\"phone\"\":\"\"+7 777 111 22 33\"\",\"\"apt\"\":\"\"100\"\",\"\"from\"\":\"\"14:00\"\",\"\"to\"\":\"\"16:00\"\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/bookings -H \"Content-Type: application/json\" -d '{\"\"date\"\":\"\"2026-04-28\"\",\"\"name\"\":\"\"Тест\"\",\"\"phone\"\":\"\"+7 777 111 22 33\"\",\"\"apt\"\":\"\"100\"\",\"\"from\"\":\"\"11:00\"\",\"\"to\"\":\"\"14:00\"\"}')",
+      "Bash(curl:*)"
+    ]
+  }
+}
