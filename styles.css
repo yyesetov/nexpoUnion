@@ -723,9 +723,10 @@ body[data-form-placement="bottom"] .form-wrap.inline { display: block; max-width
 }
 .fee-info:hover { background: var(--amber-deep); color: var(--amber-soft); }
 .fee-info .tip {
-  position: absolute;
-  right: -8px; top: calc(100% + 12px);
-  width: 300px;
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(300px, calc(100vw - 40px));
   padding: 16px 18px;
   background: var(--ink);
   border-radius: 12px;
@@ -738,16 +739,10 @@ body[data-form-placement="bottom"] .form-wrap.inline { display: block; max-width
   font-weight: 400;
   opacity: 0; pointer-events: none;
   transition: opacity 0.18s;
-  z-index: 50;
+  z-index: 150;
   text-align: left;
 }
-.fee-info:hover .tip, .fee-info:focus .tip { opacity: 1; }
-.fee-info .tip::before {
-  content: ''; position: absolute;
-  right: 12px; top: -5px; width: 10px; height: 10px;
-  background: var(--ink);
-  transform: rotate(45deg);
-}
+.fee-info:hover .tip, .fee-info:focus .tip { opacity: 1; pointer-events: auto; }
 .fee-info .tip strong { color: var(--amber); font-weight: 500; display: block; margin-bottom: 4px; }
 
 .submit {
