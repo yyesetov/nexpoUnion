@@ -32,7 +32,8 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
     if (!name.trim()) nextErrs.name = t.err_name;
     const d = phone.replace(/\D/g, '');
     if (d.length < 11) nextErrs.phone = t.err_phone;
-    if (!apt.trim()) nextErrs.apt = t.err_apt;
+    const aptNum = parseInt(apt, 10);
+    if (!apt.trim() || isNaN(aptNum) || aptNum < 1 || aptNum > 300) nextErrs.apt = t.err_apt;
     if (!from) nextErrs.from = t.err_from;
     if (!to) nextErrs.to = t.err_to;
     if (from && to && from >= to) nextErrs.to = t.err_order;
@@ -64,8 +65,8 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
       <form onSubmit={submit} noValidate>
         <div className="field">
           <label>{t.field_name}</label>
-          <input type="text" value={name} placeholder={t.field_name_ph}
-            onChange={(e) => setName(e.target.value)} />
+          <input type="text" value={name} placeholder={t.field_name_ph} maxLength={50}
+            onChange={(e) => setName(e.target.value.slice(0, 50))} />
           {errs.name && <div className="field-err">{errs.name}</div>}
         </div>
 
@@ -79,7 +80,7 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
           <div>
             <label>{t.field_apt}</label>
             <input type="text" value={apt} placeholder={t.field_apt_ph}
-              onChange={(e) => setApt(e.target.value.replace(/\D/g, '').slice(0, 4))} />
+              onChange={(e) => setApt(e.target.value.replace(/\D/g, '').slice(0, 3))} />
             {errs.apt && <div className="field-err">{errs.apt}</div>}
           </div>
         </div>

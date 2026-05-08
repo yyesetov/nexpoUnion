@@ -21,7 +21,7 @@ function CalendarGrid({ cursor, setCursor, selected, setSelected, bookings, isBu
       day: d, date, iso,
       past: past || beyond,
       partial: isBusy(iso),
-      bookings: getByDate(iso),
+      bookings: getByDate(iso).slice().sort((a, b) => a.from.localeCompare(b.from)),
       today: sameDate(date, today),
       selected: selected === iso,
     });

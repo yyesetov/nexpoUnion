@@ -28,12 +28,19 @@ router.post('/', (req, res) => {
   }
   if (!name || !name.trim()) {
     errors.push('name: укажите имя');
+  } else if (name.trim().length > 50) {
+    errors.push('name: максимум 50 символов');
   }
   if (!phone || phone.replace(/\D/g, '').length < 11) {
     errors.push('phone: некорректный номер');
   }
   if (!apt || !String(apt).trim()) {
     errors.push('apt: укажите квартиру');
+  } else {
+    const aptNum = parseInt(String(apt).trim(), 10);
+    if (isNaN(aptNum) || aptNum < 1 || aptNum > 300) {
+      errors.push('apt: номер квартиры должен быть от 1 до 300');
+    }
   }
   if (!from) {
     errors.push('from: укажите время начала');

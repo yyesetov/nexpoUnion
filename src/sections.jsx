@@ -101,7 +101,7 @@ function MyBookings({ t, getByApt }) {
           <div className="field">
             <label>{t.my_search}</label>
             <input type="text" value={query}
-              onChange={(e) => setQuery(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              onChange={(e) => setQuery(e.target.value.replace(/\D/g, '').slice(0, 3))}
               onKeyDown={(e) => e.key === 'Enter' && find()}
               placeholder="42" />
           </div>
@@ -150,7 +150,7 @@ function Footer({ t }) {
       </div>
       <div className="footer-col">
         <div className="footer-col-title">{t.footer_support.split(':')[0]}</div>
-        <a href="tel:+77771100329">+7 777 110 0329</a>
+        <a href="tel:+77085382500">+7 708 538 2500</a>
         <span className="f-item">Kaspi · перевод</span>
       </div>
       <div className="footer-col">

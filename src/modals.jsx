@@ -3,7 +3,7 @@
 function PaymentModal({ booking, t, onClose }) {
   const [copied, setCopied] = React.useState(false);
   if (!booking) return null;
-  const phone = '+7 777 110 0329';
+  const phone = '+7 708 538 2500';
   const copy = () => {
     navigator.clipboard?.writeText(phone).then(() => {
       setCopied(true);
