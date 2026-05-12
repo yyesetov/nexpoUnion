@@ -79,11 +79,8 @@ function parseDate(s) {
   return `${year}-${month}-${day}`;
 }
 
-function defaultTimeTo(from) {
-  if (!from) return '';
-  const [h, m] = from.split(':').map(Number);
-  const endH = h + 2; // assume 2-hour booking
-  return `${String(endH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+function defaultTimeTo() {
+  return '23:00'; // booking lasts until end of day
 }
 
 async function main() {
@@ -122,7 +119,7 @@ async function main() {
   for (const [name, apt, rawDate, rawTime] of RAW_DATA) {
     const date = parseDate(rawDate);
     const timeFrom = rawTime || '';
-    const timeTo = rawTime ? defaultTimeTo(rawTime) : '';
+    const timeTo = defaultTimeTo();
     const key = `${name}-${date}`;
 
     if (seen.has(key)) {
