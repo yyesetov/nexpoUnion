@@ -16,7 +16,12 @@
       "Bash(curl -s http://localhost:3000/api/bookings)",
       "Bash(curl -s -X POST http://localhost:3000/api/bookings -H \"Content-Type: application/json\" -d '{\"\"date\"\":\"\"2026-04-28\"\",\"\"name\"\":\"\"Тест\"\",\"\"phone\"\":\"\"+7 777 111 22 33\"\",\"\"apt\"\":\"\"100\"\",\"\"from\"\":\"\"14:00\"\",\"\"to\"\":\"\"16:00\"\"}')",
       "Bash(curl -s -X POST http://localhost:3000/api/bookings -H \"Content-Type: application/json\" -d '{\"\"date\"\":\"\"2026-04-28\"\",\"\"name\"\":\"\"Тест\"\",\"\"phone\"\":\"\"+7 777 111 22 33\"\",\"\"apt\"\":\"\"100\"\",\"\"from\"\":\"\"11:00\"\",\"\"to\"\":\"\"14:00\"\"}')",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:doc-0o-48-sheets.googleusercontent.com)",
+      "Bash(node:*)"
     ]
   }
 }
