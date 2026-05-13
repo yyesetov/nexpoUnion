@@ -120,7 +120,7 @@ function MyBookings({ t, getByApt }) {
                   </div>
                   <div className="mb-meta">
                     <strong>{b.name}</strong> · {b.phone}<br/>
-                    {b.from}–{b.to} · {t.field_apt.toLowerCase()} {b.apt}
+                    {t.field_apt.toLowerCase()} {b.apt}
                   </div>
                   <div className={'mb-status' + (b.paid ? '' : ' pending')}>
                     {b.paid ? t.my_status_paid : t.my_status_pending}

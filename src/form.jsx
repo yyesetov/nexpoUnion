@@ -4,15 +4,7 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
   const [name, setName] = React.useState('');
   const [phone, setPhone] = React.useState('+7 ');
   const [apt, setApt] = React.useState('');
-  const [from, setFrom] = React.useState('18:00');
-  const [to, setTo] = React.useState('22:00');
   const [errs, setErrs] = React.useState({});
-
-  const existingBookings = selected ? getByDate(selected) : [];
-
-  const hasTimeOverlap = (f, t) => {
-    return existingBookings.some((b) => b.from < t && b.to > f);
-  };
 
   const formatPhone = (v) => {
     const digits = v.replace(/\D/g, '').slice(0, 11);
@@ -34,14 +26,10 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
     if (d.length < 11) nextErrs.phone = t.err_phone;
     const aptNum = parseInt(apt, 10);
     if (!apt.trim() || isNaN(aptNum) || aptNum < 1 || aptNum > 300) nextErrs.apt = t.err_apt;
-    if (!from) nextErrs.from = t.err_from;
-    if (!to) nextErrs.to = t.err_to;
-    if (from && to && from >= to) nextErrs.to = t.err_order;
-    if (from && to && from < to && hasTimeOverlap(from, to)) nextErrs.from = t.err_overlap || 'Время пересекается с другой бронью';
     setErrs(nextErrs);
     if (Object.keys(nextErrs).length) return;
-    onBook({ name: name.trim(), phone, apt: apt.trim(), from, to, date: selected });
-    setName(''); setPhone('+7 '); setApt(''); setFrom('18:00'); setTo('22:00');
+    onBook({ name: name.trim(), phone, apt: apt.trim(), date: selected });
+    setName(''); setPhone('+7 '); setApt('');
   };
 
   return (
@@ -85,19 +73,6 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
           </div>
         </div>
 
-        <div className="field row">
-          <div>
-            <label>{t.field_time_from}</label>
-            <input type="time" value={from} onChange={(e) => setFrom(e.target.value)} />
-            {errs.from && <div className="field-err">{errs.from}</div>}
-          </div>
-          <div>
-            <label>{t.field_time_to}</label>
-            <input type="time" value={to} onChange={(e) => setTo(e.target.value)} />
-            {errs.to && <div className="field-err">{errs.to}</div>}
-          </div>
-        </div>
-
         <div className="fee-row">
           <span className="fee-label">
             {t.fee_label}
@@ -112,16 +87,7 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
           <span className="fee-val">{t.fee_val}</span>
         </div>
 
-        {existingBookings.length > 0 && (
-          <div className="existing-slots">
-            <div className="es-label">{t.booked_slots || 'Занятые слоты'}</div>
-            {existingBookings.map((b) => (
-              <div key={b.id} className="es-row">{b.from}–{b.to} · {b.name} · кв. {b.apt} · {b.phone}</div>
-            ))}
-          </div>
-        )}
-
-        <button type="submit" className="submit" disabled={!selected}>
+        <button type="submit" className="submit" disabled={!selected || isBusy(selected)}>
           {t.submit}
         </button>
         <div className="form-hint">{t.form_hint}</div>

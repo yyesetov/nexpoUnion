@@ -21,17 +21,18 @@ async function init() {
     db = new SQL.Database();
   }
 
-  // Check if old schema has UNIQUE on date — migrate if so
+  // Migrate: drop time_from/time_to columns if old schema has them
   const tableInfo = db.exec(`SELECT sql FROM sqlite_master WHERE type='table' AND name='bookings'`);
   if (tableInfo.length && tableInfo[0].values.length) {
     const ddl = tableInfo[0].values[0][0] || '';
-    if (ddl.includes('UNIQUE')) {
+    if (ddl.includes('time_from')) {
       db.run(`CREATE TABLE IF NOT EXISTS bookings_new (
         id TEXT PRIMARY KEY, date TEXT NOT NULL, name TEXT NOT NULL,
-        phone TEXT NOT NULL, apt TEXT NOT NULL, time_from TEXT NOT NULL,
-        time_to TEXT NOT NULL, paid INTEGER DEFAULT 0, created_at INTEGER NOT NULL
+        phone TEXT NOT NULL, apt TEXT NOT NULL,
+        paid INTEGER DEFAULT 0, created_at INTEGER NOT NULL
       )`);
-      db.run(`INSERT OR IGNORE INTO bookings_new SELECT * FROM bookings`);
+      db.run(`INSERT OR IGNORE INTO bookings_new (id, date, name, phone, apt, paid, created_at)
+              SELECT id, date, name, phone, apt, paid, created_at FROM bookings`);
       db.run(`DROP TABLE bookings`);
       db.run(`ALTER TABLE bookings_new RENAME TO bookings`);
     }
@@ -44,8 +45,6 @@ async function init() {
       name       TEXT NOT NULL,
       phone      TEXT NOT NULL,
       apt        TEXT NOT NULL,
-      time_from  TEXT NOT NULL,
-      time_to    TEXT NOT NULL,
       paid       INTEGER DEFAULT 0,
       created_at INTEGER NOT NULL
     )
@@ -85,8 +84,6 @@ function toFrontend(row) {
     name: row.name,
     phone: row.phone,
     apt: row.apt,
-    from: row.time_from,
-    to: row.time_to,
     paid: !!row.paid,
     createdAt: row.created_at,
   };
@@ -99,12 +96,12 @@ module.exports = {
     const id = 'b-' + Date.now();
     const now = Date.now();
     run(
-      `INSERT INTO bookings (id, date, name, phone, apt, time_from, time_to, paid, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)`,
-      [id, data.date, data.name, data.phone, data.apt, data.from, data.to, now]
+      `INSERT INTO bookings (id, date, name, phone, apt, paid, created_at) VALUES (?, ?, ?, ?, ?, 0, ?)`,
+      [id, data.date, data.name, data.phone, data.apt, now]
     );
     return toFrontend({
       id, date: data.date, name: data.name, phone: data.phone,
-      apt: data.apt, time_from: data.from, time_to: data.to, paid: 0, created_at: now,
+      apt: data.apt, paid: 0, created_at: now,
     });
   },
 
@@ -121,11 +118,8 @@ module.exports = {
     return query(`SELECT * FROM bookings WHERE date = ?`, [date]).map(toFrontend);
   },
 
-  hasOverlap(date, from, to) {
-    const rows = query(
-      `SELECT * FROM bookings WHERE date = ? AND time_from < ? AND time_to > ?`,
-      [date, to, from]
-    );
+  isDateBooked(date) {
+    const rows = query(`SELECT * FROM bookings WHERE date = ?`, [date]);
     return rows.length > 0;
   },
 
@@ -143,6 +137,21 @@ module.exports = {
     if (before.length === 0) return false;
     run(`DELETE FROM bookings WHERE id = ?`, [id]);
     return true;
+  },
+
+  updateById(id, fields) {
+    const existing = query(`SELECT * FROM bookings WHERE id = ?`, [id]);
+    if (!existing.length) return null;
+    const row = existing[0];
+    const name = fields.name !== undefined ? fields.name : row.name;
+    const phone = fields.phone !== undefined ? fields.phone : row.phone;
+    const apt = fields.apt !== undefined ? fields.apt : row.apt;
+    run(
+      `UPDATE bookings SET name = ?, phone = ?, apt = ? WHERE id = ?`,
+      [name, phone, apt, id]
+    );
+    const updated = query(`SELECT * FROM bookings WHERE id = ?`, [id]);
+    return updated.length ? toFrontend(updated[0]) : null;
   },
 
   setPaid(id, paid) {

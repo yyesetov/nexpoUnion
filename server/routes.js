@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
 
 // POST /api/bookings — create a booking
 router.post('/', (req, res) => {
-  const { date, name, phone, apt, from, to } = req.body;
+  const { date, name, phone, apt } = req.body;
   const errors = [];
 
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -42,15 +42,6 @@ router.post('/', (req, res) => {
       errors.push('apt: номер квартиры должен быть от 1 до 300');
     }
   }
-  if (!from) {
-    errors.push('from: укажите время начала');
-  }
-  if (!to) {
-    errors.push('to: укажите время окончания');
-  }
-  if (from && to && from >= to) {
-    errors.push('to: время окончания должно быть позже начала');
-  }
 
   if (errors.length) {
     return res.status(400).json({ error: 'Ошибка валидации', details: errors });
@@ -62,15 +53,15 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'Нельзя бронировать прошедшую дату' });
   }
 
-  // Check time overlap
-  if (db.hasOverlap(date, from, to)) {
+  // Check if date is already booked
+  if (db.isDateBooked(date)) {
     return res.status(409).json({
-      error: 'Это время уже занято. Выберите другой слот.',
+      error: 'Эта дата уже занята. Выберите другой день.',
       bookings: db.byDate(date),
     });
   }
 
-  const booking = db.insert({ date, name: name.trim(), phone, apt: String(apt).trim(), from, to });
+  const booking = db.insert({ date, name: name.trim(), phone, apt: String(apt).trim() });
   return res.status(201).json(booking);
 });
 

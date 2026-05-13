@@ -18,7 +18,7 @@ function PaymentModal({ booking, t, onClose }) {
         <h3>{t.modal_pay_title_1} <em>{t.modal_pay_title_em}</em></h3>
         <div className="modal-body">
           <p style={{ margin: '0 0 8px' }}>
-            <strong>{formatLong(booking.date, t)}</strong> · {booking.from}–{booking.to} · {t.field_apt.toLowerCase()} {booking.apt}
+            <strong>{formatLong(booking.date, t)}</strong> · {t.field_apt.toLowerCase()} {booking.apt}
           </p>
           <p style={{ margin: 0 }}>{t.modal_pay_body}</p>
         </div>
@@ -73,7 +73,7 @@ function BusyDateModal({ dateIso, booking, t, onClose }) {
             }}>
               <div>{formatLong(booking.date, t)} · {formatDow(booking.date, t)}</div>
               <div style={{ color: 'var(--text-dim)' }}>
-                {booking.name} · {t.field_apt.toLowerCase()} {booking.apt} · {booking.from}–{booking.to}
+                {booking.name} · {t.field_apt.toLowerCase()} {booking.apt}
               </div>
             </div>
           )}

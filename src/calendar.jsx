@@ -21,7 +21,7 @@ function CalendarGrid({ cursor, setCursor, selected, setSelected, bookings, isBu
       day: d, date, iso,
       past: past || beyond,
       partial: isBusy(iso),
-      bookings: getByDate(iso).slice().sort((a, b) => a.from.localeCompare(b.from)),
+      bookings: getByDate(iso),
       today: sameDate(date, today),
       selected: selected === iso,
     });
@@ -61,7 +61,7 @@ function CalendarGrid({ cursor, setCursor, selected, setSelected, bookings, isBu
       </div>
       <div className="cal-legend">
         <span><span className="dot free"></span>{t.legend_free}</span>
-        <span><span className="dot partial"></span>{t.legend_partial}</span>
+        <span><span className="dot partial"></span>{t.legend_busy}</span>
         <span><span className="dot sel"></span>{t.legend_sel}</span>
         <span><span className="dot past"></span>{t.legend_past}</span>
       </div>
@@ -79,7 +79,7 @@ function CalendarGrid({ cursor, setCursor, selected, setSelected, bookings, isBu
             <div key={c.iso} className={cls.join(' ')} onClick={() => pick(c)}>
               <div className="daynum">{c.day}</div>
               <div className="cell-meta">
-                {c.past ? '—' : c.partial ? t.legend_partial : t.legend_free}
+                {c.past ? '—' : c.partial ? t.legend_busy : t.legend_free}
               </div>
               {c.bookings && c.bookings.length > 0 && (
                 <div className="cell-bookers">
@@ -140,10 +140,10 @@ function CalendarList({ cursor, setCursor, selected, setSelected, bookings, isBu
                 <span className="dow">{t.weekdays[dow]}</span>
               </div>
               <div className={'cal-list-status' + (r.partial ? ' partial' : '')}>
-                {r.past ? '—' : r.partial ? t.legend_partial : t.legend_free}
+                {r.past ? '—' : r.partial ? t.legend_busy : t.legend_free}
                 {r.bookings.map((b) => (
                   <span key={b.id} className="booker">
-                    {b.name} · кв. {b.apt} · {b.from}–{b.to}
+                    {b.name} · кв. {b.apt}
                   </span>
                 ))}
               </div>
@@ -196,7 +196,7 @@ function CalendarTimeline({ cursor, setCursor, selected, setSelected, bookings, 
       </div>
       <div className="cal-legend">
         <span><span className="dot free"></span>{t.legend_free}</span>
-        <span><span className="dot partial"></span>{t.legend_partial}</span>
+        <span><span className="dot partial"></span>{t.legend_busy}</span>
         <span><span className="dot sel"></span>{t.legend_sel}</span>
       </div>
       <div className="cal-timeline">
@@ -213,8 +213,8 @@ function CalendarTimeline({ cursor, setCursor, selected, setSelected, bookings, 
               <div className="daynum">{c.day}</div>
               {c.bookings.length > 0 ? (
                 c.bookings.map((b) => (
-                  <div key={b.id} className="tl-bar" title={`${b.name} · кв.${b.apt} · ${b.from}–${b.to}`}>
-                    {b.from}–{b.to} · {b.name} · кв.{b.apt}
+                  <div key={b.id} className="tl-bar" title={`${b.name} · кв.${b.apt}`}>
+                    {b.name} · кв.{b.apt}
                   </div>
                 ))
               ) : !c.past && (
