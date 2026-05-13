@@ -6,6 +6,9 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
   const [apt, setApt] = React.useState('');
   const [errs, setErrs] = React.useState({});
 
+  const busy = selected && isBusy(selected);
+  const existingBooking = busy ? getByDate(selected)[0] : null;
+
   const formatPhone = (v) => {
     const digits = v.replace(/\D/g, '').slice(0, 11);
     if (!digits) return '';
@@ -20,6 +23,7 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
 
   const submit = (e) => {
     e.preventDefault();
+    if (busy) return;
     const nextErrs = {};
     if (!name.trim()) nextErrs.name = t.err_name;
     const d = phone.replace(/\D/g, '');
@@ -34,8 +38,8 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
 
   return (
     <div className="form-card">
-      <h3>{t.form_title}</h3>
-      <div className="form-sub">{t.form_sub}</div>
+      <h3>{busy ? t.busy_title_1 + ' ' + t.busy_title_em : t.form_title}</h3>
+      <div className="form-sub">{busy ? t.busy_body : t.form_sub}</div>
 
       {selected ? (
         <div className="selected-date">
@@ -53,44 +57,64 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
       <form onSubmit={submit} noValidate>
         <div className="field">
           <label>{t.field_name}</label>
-          <input type="text" value={name} placeholder={t.field_name_ph} maxLength={50}
-            onChange={(e) => setName(e.target.value.slice(0, 50))} />
+          <input type="text"
+            value={busy ? existingBooking.name : name}
+            placeholder={t.field_name_ph}
+            maxLength={50}
+            readOnly={busy}
+            onChange={(e) => !busy && setName(e.target.value.slice(0, 50))} />
           {errs.name && <div className="field-err">{errs.name}</div>}
         </div>
 
         <div className="field row">
           <div>
             <label>{t.field_phone}</label>
-            <input type="tel" value={phone} placeholder={t.field_phone_ph}
-              onChange={(e) => setPhone(formatPhone(e.target.value))} />
+            <input type="tel"
+              value={busy ? (existingBooking.phone || '—') : phone}
+              placeholder={t.field_phone_ph}
+              readOnly={busy}
+              onChange={(e) => !busy && setPhone(formatPhone(e.target.value))} />
             {errs.phone && <div className="field-err">{errs.phone}</div>}
           </div>
           <div>
             <label>{t.field_apt}</label>
-            <input type="text" value={apt} placeholder={t.field_apt_ph}
-              onChange={(e) => setApt(e.target.value.replace(/\D/g, '').slice(0, 3))} />
+            <input type="text"
+              value={busy ? existingBooking.apt : apt}
+              placeholder={t.field_apt_ph}
+              readOnly={busy}
+              onChange={(e) => !busy && setApt(e.target.value.replace(/\D/g, '').slice(0, 3))} />
             {errs.apt && <div className="field-err">{errs.apt}</div>}
           </div>
         </div>
 
-        <div className="fee-row">
-          <span className="fee-label">
-            {t.fee_label}
-            <span className="fee-info" tabIndex="0">
-              ?
-              <span className="tip">
-                <strong>{t.fee_tip_title}</strong><br/>
-                {t.fee_tip_body}
+        {!busy && (
+          <>
+            <div className="fee-row">
+              <span className="fee-label">
+                {t.fee_label}
+                <span className="fee-info" tabIndex="0">
+                  ?
+                  <span className="tip">
+                    <strong>{t.fee_tip_title}</strong><br/>
+                    {t.fee_tip_body}
+                  </span>
+                </span>
               </span>
-            </span>
-          </span>
-          <span className="fee-val">{t.fee_val}</span>
-        </div>
+              <span className="fee-val">{t.fee_val}</span>
+            </div>
 
-        <button type="submit" className="submit" disabled={!selected || isBusy(selected)}>
-          {t.submit}
-        </button>
-        <div className="form-hint">{t.form_hint}</div>
+            <button type="submit" className="submit" disabled={!selected}>
+              {t.submit}
+            </button>
+            <div className="form-hint">{t.form_hint}</div>
+          </>
+        )}
+
+        {busy && (
+          <button type="button" className="submit" style={{ opacity: 0.6 }} onClick={() => setSelected(null)}>
+            {t.busy_pick}
+          </button>
+        )}
       </form>
     </div>
   );

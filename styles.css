@@ -837,7 +837,7 @@ body[data-form-placement="bottom"] .form-wrap.inline { display: block; max-width
 /* ===== RULES ===== */
 .rules-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
 .rule {
