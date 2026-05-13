@@ -110,11 +110,6 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
           </>
         )}
 
-        {busy && (
-          <button type="button" className="submit" style={{ opacity: 0.6 }} onClick={() => setSelected(null)}>
-            {t.busy_pick}
-          </button>
-        )}
       </form>
     </div>
   );
