@@ -61,12 +61,10 @@ function Embers() {
 }
 
 function Hero({ t }) {
-  const [imgOk, setImgOk] = React.useState(true);
   return (
     <section className="hero" style={{ padding: 0 }}>
       <div className="hero-photo">
         <div className="ph-fallback"></div>
-        {imgOk && <img src="/uploads/018a5a09-aa22-4b0a-a58a-71fa77de345c.png" alt="Мангальная зона" onError={() => setImgOk(false)} />}
       </div>
       <div className="hero-overlay"></div>
       <Embers />

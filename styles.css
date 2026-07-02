@@ -91,6 +91,8 @@ section{padding:72px 0 0}
 /* ---------- calendar ---------- */
 .calendar-block{display:grid;grid-template-columns:1fr;gap:22px;margin-top:26px}
 @media(min-width:900px){.calendar-block{grid-template-columns:1.55fr 1fr;align-items:start}}
+/* when the form is a modal there is no inline column — let the calendar fill the row */
+body[data-form-placement="modal"] .calendar-block{grid-template-columns:1fr}
 .cal-panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px}
 .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .cal-month{font-size:20px;font-weight:650}
