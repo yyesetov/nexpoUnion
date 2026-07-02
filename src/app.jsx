@@ -92,7 +92,6 @@ function App() {
           <div className="brand-mark">N</div>
           <div>
             <div className="brand-name">Nexpo Union</div>
-            <div className="brand-sub">{t.brand_sub}</div>
           </div>
         </div>
         <div className="topbar-right">
