@@ -1,4 +1,4 @@
-// Booking store — API-backed
+// Booking store — API-backed (логика без изменений)
 
 const api = {
   list(params) {
@@ -26,7 +26,6 @@ function useBookings() {
   const [bookings, setBookings] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
-  // Load all bookings on mount
   React.useEffect(() => {
     api.list().then((data) => {
       setBookings(data);
