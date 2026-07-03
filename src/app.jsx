@@ -25,12 +25,29 @@ function useScrolled() {
   return scrolled;
 }
 
+// True when the viewport is too narrow to fit the calendar + form in one row
+function useNarrow() {
+  const query = '(max-width:899px)';
+  const [narrow, setNarrow] = React.useState(() => window.matchMedia(query).matches);
+  React.useEffect(() => {
+    const mq = window.matchMedia(query);
+    const onChange = () => setNarrow(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return narrow;
+}
+
 function App() {
   const { lang, setLang, t } = useI18n();
   const { bookings, loading, isBusy, getByDate, add, cancel, getByApt, refresh } = useBookings();
   const { tweaks, setTweak, visible } = useTweaks();
   useReveal();
   const scrolled = useScrolled();
+  const narrow = useNarrow();
+  // On narrow screens the form becomes a modal regardless of the tweak,
+  // so it never gets awkwardly stacked under the calendar on mobile.
+  const formPlacement = narrow ? 'modal' : tweaks.formPlacement;
 
   const [cursor, setCursor] = React.useState(() => { const d = new Date(); d.setDate(1); return d; });
   const [selected, setSelected] = React.useState(null);
@@ -76,7 +93,7 @@ function App() {
 
   const handleSelectDate = (iso) => {
     setSelected(iso);
-    if (iso && tweaks.formPlacement === 'modal') setModalFormOpen(true);
+    if (iso && formPlacement === 'modal') setModalFormOpen(true);
   };
 
   const calendarProps = { cursor, setCursor, selected, setSelected: handleSelectDate, bookings, isBusy, getByDate, t, lang, onBusyClick: () => {} };
@@ -112,7 +129,7 @@ function App() {
         </div>
         <div className="calendar-block">
           <div><CalComp {...calendarProps} /></div>
-          {tweaks.formPlacement !== 'modal' && <div className="form-wrap inline">{formNode}</div>}
+          {formPlacement !== 'modal' && <div className="form-wrap inline">{formNode}</div>}
         </div>
       </section>
 
