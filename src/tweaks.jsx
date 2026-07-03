@@ -30,12 +30,12 @@ function TweaksPanel({ tweaks, setTweak, visible }) {
 function useTweaks() {
   const defaults = window.__TWEAK_DEFAULTS || {};
   const [tweaks, setTweaks] = React.useState(() => {
-    const saved = localStorage.getItem('mangal.tweaks');
+    const saved = localStorage.getItem('mangal.tweaks.v2');
     return saved ? { ...defaults, ...JSON.parse(saved) } : { ...defaults };
   });
   const [visible, setVisible] = React.useState(false);
   React.useEffect(() => {
-    localStorage.setItem('mangal.tweaks', JSON.stringify(tweaks));
+    localStorage.setItem('mangal.tweaks.v2', JSON.stringify(tweaks));
     document.body.dataset.calendarView = tweaks.calendarView;
     document.body.dataset.formPlacement = tweaks.formPlacement;
   }, [tweaks]);
