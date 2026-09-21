@@ -48,8 +48,7 @@ function App() {
   const narrow = useNarrow();
   // On narrow screens the form becomes a modal regardless of the tweak,
   // so it never gets awkwardly stacked under the calendar on mobile.
-  // При закрытом сезоне формы нет — показываем карточку прямо в секции.
-  const formPlacement = seasonClosed ? 'inline' : (narrow ? 'modal' : tweaks.formPlacement);
+  const asModal = narrow || tweaks.formPlacement === 'modal';
 
   const [cursor, setCursor] = React.useState(() => { const d = new Date(); d.setDate(1); return d; });
   const [selected, setSelected] = React.useState(null);
@@ -57,6 +56,12 @@ function App() {
   const [toast, setToast] = React.useState({ on: false, msg: '' });
   const [modalFormOpen, setModalFormOpen] = React.useState(false);
   const [fabHidden, setFabHidden] = React.useState(false);
+
+  // Сезон закрыт — формы нет, но занятую дату по-прежнему можно открыть
+  // и посмотреть, кем она занята.
+  const busySelected = !!(selected && isBusy(selected));
+  const showClosedCard = seasonClosed && !busySelected;
+  const formPlacement = showClosedCard ? 'inline' : (asModal ? 'modal' : tweaks.formPlacement);
 
   React.useEffect(() => {
     const book = document.getElementById('book');
@@ -98,18 +103,20 @@ function App() {
 
   const handleSelectDate = (iso) => {
     setSelected(iso);
-    if (iso && formPlacement === 'modal') setModalFormOpen(true);
+    // При закрытом сезоне модалка нужна только для просмотра занятой даты
+    if (iso && asModal && (!seasonClosed || isBusy(iso))) setModalFormOpen(true);
   };
 
-  // Модалка с формой не должна остаться открытой, если сезон закрыли
+  // Модалка с формой не должна остаться открытой, если сезон закрыли,
+  // но карточку занятой даты закрывать не за что — её по-прежнему можно смотреть.
   React.useEffect(() => {
-    if (seasonClosed) setModalFormOpen(false);
-    document.body.dataset.seasonClosed = seasonClosed ? '1' : '0';
-  }, [seasonClosed]);
+    if (showClosedCard) setModalFormOpen(false);
+    document.body.dataset.seasonClosed = showClosedCard ? '1' : '0';
+  }, [showClosedCard]);
 
   const calendarProps = { cursor, setCursor, selected, setSelected: handleSelectDate, bookings, isBusy, getByDate, t, lang, onBusyClick: () => {} };
   const CalComp = { grid: CalendarGrid, list: CalendarList, timeline: CalendarTimeline }[tweaks.calendarView] || CalendarGrid;
-  const formNode = seasonClosed ? (
+  const formNode = showClosedCard ? (
     <SeasonClosedCard t={t} />
   ) : (
     <BookingForm selected={selected} setSelected={setSelected} t={t} isBusy={isBusy} onBook={handleBook} getByDate={getByDate} />
@@ -159,7 +166,7 @@ function App() {
         </button>
       )}
 
-      {modalFormOpen && !seasonClosed && (
+      {modalFormOpen && !showClosedCard && (
         <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
           <div className="modal" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setModalFormOpen(false)}>×</button>
