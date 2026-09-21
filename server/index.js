@@ -16,6 +16,9 @@ async function start() {
   app.use(express.json());
 
   // API
+  app.get('/api/settings', (req, res) => {
+    res.json({ seasonClosed: db.isSeasonClosed() });
+  });
   app.use('/api/bookings', bookingRoutes);
 
   // Static files — serve frontend from project root

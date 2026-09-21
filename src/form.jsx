@@ -95,4 +95,23 @@ function BookingForm({ selected, setSelected, t, isBusy, onBook, getByDate }) {
   );
 }
 
-Object.assign(window, { BookingForm });
+// Карточка вместо формы, когда админ закрыл сезон в боте
+function SeasonClosedCard({ t }) {
+  return (
+    <div className="form-card season-closed">
+      <div className="season-closed-ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+          strokeLinecap="round" strokeLinejoin="round">
+          <rect x="4" y="10.5" width="16" height="10" rx="2.5" />
+          <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+          <path d="M12 14.5v2.5" />
+        </svg>
+      </div>
+      <h3>{t.season_closed_title}</h3>
+      <div className="form-sub">{t.season_closed_body}</div>
+      <div className="form-hint">{t.season_closed_hint}</div>
+    </div>
+  );
+}
+
+Object.assign(window, { BookingForm, SeasonClosedCard });

@@ -64,6 +64,32 @@ function useBookings() {
   return { bookings, loading, isBusy, getByDate, add, cancel, getByApt, refresh };
 }
 
+function useSettings() {
+  const [seasonClosed, setSeasonClosed] = React.useState(false);
+
+  const refreshSettings = React.useCallback(() => {
+    return fetch('/api/settings')
+      .then((r) => r.json())
+      .then((data) => setSeasonClosed(!!data.seasonClosed))
+      .catch(() => {});
+  }, []);
+
+  React.useEffect(() => {
+    refreshSettings();
+    // Админ переключает сезон в боте — перечитываем настройку,
+    // когда вкладка снова становится активной.
+    const onVisible = () => { if (!document.hidden) refreshSettings(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', refreshSettings);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', refreshSettings);
+    };
+  }, [refreshSettings]);
+
+  return { seasonClosed, refreshSettings };
+}
+
 // Utilities
 function toIso(d) {
   const yy = d.getFullYear();
@@ -88,4 +114,4 @@ function formatDow(iso, t) {
   return t.weekdaysLong[dow];
 }
 
-Object.assign(window, { useBookings, toIso, parseIso, sameDate, addDays, startOfMonth, formatLong, formatDow });
+Object.assign(window, { useBookings, useSettings, toIso, parseIso, sameDate, addDays, startOfMonth, formatLong, formatDow });

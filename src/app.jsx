@@ -41,13 +41,15 @@ function useNarrow() {
 function App() {
   const { lang, setLang, t } = useI18n();
   const { bookings, loading, isBusy, getByDate, add, cancel, getByApt, refresh } = useBookings();
+  const { seasonClosed, refreshSettings } = useSettings();
   const { tweaks, setTweak, visible } = useTweaks();
   useReveal();
   const scrolled = useScrolled();
   const narrow = useNarrow();
   // On narrow screens the form becomes a modal regardless of the tweak,
   // so it never gets awkwardly stacked under the calendar on mobile.
-  const formPlacement = narrow ? 'modal' : tweaks.formPlacement;
+  // При закрытом сезоне формы нет — показываем карточку прямо в секции.
+  const formPlacement = seasonClosed ? 'inline' : (narrow ? 'modal' : tweaks.formPlacement);
 
   const [cursor, setCursor] = React.useState(() => { const d = new Date(); d.setDate(1); return d; });
   const [selected, setSelected] = React.useState(null);
@@ -70,6 +72,7 @@ function App() {
   };
 
   const handleBook = async (data) => {
+    if (seasonClosed) return;
     try {
       const b = await add(data);
       setSelected(null);
@@ -80,6 +83,8 @@ function App() {
       if (err && err.error) {
         showToast(err.error);
         if (err.bookings) refresh();
+        // Сезон мог закрыться, пока страница была открыта
+        refreshSettings();
       } else {
         showToast('Ошибка сервера');
       }
@@ -96,9 +101,17 @@ function App() {
     if (iso && formPlacement === 'modal') setModalFormOpen(true);
   };
 
+  // Модалка с формой не должна остаться открытой, если сезон закрыли
+  React.useEffect(() => {
+    if (seasonClosed) setModalFormOpen(false);
+    document.body.dataset.seasonClosed = seasonClosed ? '1' : '0';
+  }, [seasonClosed]);
+
   const calendarProps = { cursor, setCursor, selected, setSelected: handleSelectDate, bookings, isBusy, getByDate, t, lang, onBusyClick: () => {} };
   const CalComp = { grid: CalendarGrid, list: CalendarList, timeline: CalendarTimeline }[tweaks.calendarView] || CalendarGrid;
-  const formNode = (
+  const formNode = seasonClosed ? (
+    <SeasonClosedCard t={t} />
+  ) : (
     <BookingForm selected={selected} setSelected={setSelected} t={t} isBusy={isBusy} onBook={handleBook} getByDate={getByDate} />
   );
 
@@ -116,7 +129,9 @@ function App() {
             <button className={lang === 'kz' ? 'on' : ''} onClick={() => setLang('kz')}>KZ</button>
             <button className={lang === 'ru' ? 'on' : ''} onClick={() => setLang('ru')}>RU</button>
           </div>
-          <button className="topbar-cta" onClick={() => scrollTo('book')}>{t.nav_book}</button>
+          {seasonClosed
+            ? <span className="season-chip">{t.season_closed_badge}</span>
+            : <button className="topbar-cta" onClick={() => scrollTo('book')}>{t.nav_book}</button>}
         </div>
       </header>
 
@@ -138,11 +153,13 @@ function App() {
 
       <Footer t={t} />
 
-      <button className={'fab-book' + (fabHidden ? ' hidden' : '')} onClick={() => scrollTo('book')}>
-        {t.nav_book} · 2 000 ₸
-      </button>
+      {!seasonClosed && (
+        <button className={'fab-book' + (fabHidden ? ' hidden' : '')} onClick={() => scrollTo('book')}>
+          {t.nav_book} · 2 000 ₸
+        </button>
+      )}
 
-      {modalFormOpen && (
+      {modalFormOpen && !seasonClosed && (
         <div className="modal-overlay" onClick={() => setModalFormOpen(false)}>
           <div className="modal" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setModalFormOpen(false)}>×</button>

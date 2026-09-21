@@ -14,6 +14,8 @@ function save() {
 async function init() {
   const SQL = await initSqlJs();
 
+  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
+
   if (fs.existsSync(DB_PATH)) {
     const buffer = fs.readFileSync(DB_PATH);
     db = new SQL.Database(buffer);
@@ -51,6 +53,14 @@ async function init() {
   `);
   db.run(`CREATE INDEX IF NOT EXISTS idx_apt ON bookings(apt)`);
   db.run(`CREATE INDEX IF NOT EXISTS idx_date ON bookings(date)`);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    )
+  `);
+  db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('season_closed', '0')`);
   save();
 }
 
@@ -158,5 +168,23 @@ module.exports = {
     run(`UPDATE bookings SET paid = ? WHERE id = ?`, [paid ? 1 : 0, id]);
     const rows = query(`SELECT * FROM bookings WHERE id = ?`, [id]);
     return rows.length ? toFrontend(rows[0]) : null;
+  },
+
+  getSetting(key, fallback = null) {
+    const rows = query(`SELECT value FROM settings WHERE key = ?`, [key]);
+    return rows.length ? rows[0].value : fallback;
+  },
+
+  setSetting(key, value) {
+    run(`INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)`, [key, String(value)]);
+  },
+
+  isSeasonClosed() {
+    return this.getSetting('season_closed', '0') === '1';
+  },
+
+  setSeasonClosed(closed) {
+    this.setSetting('season_closed', closed ? '1' : '0');
+    return this.isSeasonClosed();
   },
 };

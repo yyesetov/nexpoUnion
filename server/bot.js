@@ -32,6 +32,22 @@ function formatBooking(b) {
   ].join('\n');
 }
 
+function seasonText(closed) {
+  return closed
+    ? '🔒 *Сезон закрыт*\nНовые брони на сайте недоступны. Существующие брони сохранены.'
+    : '🔥 *Сезон открыт*\nЖители могут бронировать мангальную зону.';
+}
+
+function seasonKeyboard(closed) {
+  return {
+    inline_keyboard: [[
+      closed
+        ? { text: '🔓 Открыть сезон', callback_data: 'season:open' }
+        : { text: '🔒 Закрыть сезон', callback_data: 'season:close' },
+    ]],
+  };
+}
+
 // /start
 bot.onText(/\/start/, (msg) => {
   if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
@@ -47,6 +63,7 @@ bot.onText(/\/start/, (msg) => {
     '/delete ID — удалить бронь',
     '/paid ID — отметить как оплачено',
     '/unpaid ID — отметить как неоплачено',
+    '/season — открыть или закрыть сезон бронирования',
     '',
     `Ваш chat ID: \`${msg.chat.id}\``,
   ].join('\n'), { parse_mode: 'Markdown' });
@@ -140,6 +157,16 @@ bot.onText(/\/unpaid\s+(b-\d+|seed-.+)/, (msg, match) => {
   bot.sendMessage(msg.chat.id, `❌ Оплата снята:\n\n${formatBooking(updated)}`, { parse_mode: 'Markdown' });
 });
 
+// /season — toggle booking season
+bot.onText(/\/season/, (msg) => {
+  if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
+  const closed = db.isSeasonClosed();
+  bot.sendMessage(msg.chat.id, seasonText(closed), {
+    parse_mode: 'Markdown',
+    reply_markup: seasonKeyboard(closed),
+  });
+});
+
 // /edit ID — show booking with edit buttons
 bot.onText(/\/edit\s+(b-\d+|seed-.+)/, (msg, match) => {
   if (!isAdmin(msg.chat.id)) return deny(msg.chat.id);
@@ -171,6 +198,19 @@ bot.onText(/\/edit\s+(b-\d+|seed-.+)/, (msg, match) => {
 bot.on('callback_query', (query) => {
   const chatId = query.message.chat.id;
   if (!isAdmin(chatId)) return;
+
+  if (query.data.startsWith('season:')) {
+    const closed = query.data === 'season:close';
+    db.setSeasonClosed(closed);
+    bot.answerCallbackQuery(query.id, { text: closed ? 'Сезон закрыт' : 'Сезон открыт' });
+    bot.editMessageText(seasonText(closed), {
+      chat_id: chatId,
+      message_id: query.message.message_id,
+      parse_mode: 'Markdown',
+      reply_markup: seasonKeyboard(closed),
+    });
+    return;
+  }
 
   if (query.data === 'edit_cancel') {
     delete pendingEdits[chatId];

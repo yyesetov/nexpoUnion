@@ -47,6 +47,10 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'Ошибка валидации', details: errors });
   }
 
+  if (db.isSeasonClosed()) {
+    return res.status(403).json({ error: 'Сезон бронирования закрыт' });
+  }
+
   // Check date not in the past
   const today = new Date().toISOString().slice(0, 10);
   if (date < today) {
